@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Avto-Zapchast — EV ehtiyot qismlar CRM</title>
+<script src="tailwind.config.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  
+<div id="app">
+ 
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-left">
+      <button class="brand" type="button" onclick="navigate('dashboard')" aria-label="Bosh sahifa">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-7 h-7">
+            <rect width="28" height="28" rx="7" fill="#1d7a5d"/>
+            <path d="M7 17l4-8 3 5 2-3 4 6H7z" fill="rgba(255,255,255,0.18)" stroke="rgba(255,255,255,0.85)" stroke-width="1.25" stroke-linejoin="round"/>
+            <circle cx="20" cy="9" r="2" fill="rgba(255,255,255,0.9)" opacity="0.9"/>
+          </svg>
+        </span>
+        <span class="brand-text">
+          <span class="brand-name">AUTOBAN</span>
+        </span>
+      </button>
+
+      <div class="top-links" aria-label="Menyu">
+        <button class="top-link active" data-page="dashboard" type="button" onclick="navigate('dashboard')">Hisob</button>
+        <button class="top-link" data-page="inventory" type="button" onclick="navigate('inventory')">Ombor</button>
+        <button class="top-link" data-page="models" type="button" onclick="navigate('models')">Modellar</button>
+        <button class="top-link" data-page="sales" type="button" onclick="navigate('sales')">Tranzaksiyalar</button>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <button class="icon-btn" type="button" title="Qidirish" onclick="focusSearch()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>
+        </svg>
+      </button>
+      <button class="icon-btn" type="button" title="Bildirishnomalar" onclick="showToast('Hozircha mavjud emas')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8a6 6 0 10-12 0c0 7-3 7-3 7h18s-3 0-3-7"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
+        </svg>
+      </button>
+      <button id="theme-toggle" class="icon-btn" type="button" aria-label="Qorong'i rejimga o'tish" aria-pressed="false" title="Qorong'i rejim" onclick="toggleTheme()">
+        <svg class="theme-icon theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/>
+        </svg>
+        <svg class="theme-icon theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/>
+          <path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+        </svg>
+      </button>
+      <button class="btn-primary btn-sm desktop-only" type="button" onclick="openAddModal()">+ Qo'shish</button>
+      <div class="profile-chip" title="Admin">
+        <div class="avatar">A</div>
+        <div class="profile-name">Admin</div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Main Content -->
+  <div id="main-content">
+ 
+    <!-- DASHBOARD PAGE -->
+    <div id="page-dashboard" class="page">
+      <div class="dashboard-grid">
+        <div class="card card-main">
+          <div class="card-label">Asosiy hisob</div>
+          <div class="card-main-row">
+            <div>
+              <div class="card-title">Boshqaruv markazi</div>
+              <div class="card-subtitle">Ombor holati real vaqt rejimida</div>
+            </div>
+            <div class="card-kpi">
+              <div class="card-kpi-label">Bugungi tushum</div>
+              <div class="card-kpi-value" id="stat-revenue-main">—</div>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="btn-primary btn-sm" type="button" onclick="openAddModal()">Yangi ehtiyot qism</button>
+            <button class="btn-secondary btn-sm" type="button" onclick="navigate('inventory')">Omborni ochish</button>
+          </div>
+        </div>
+
+        <div class="card card-hero">
+          <div class="hero-title">Kam qoldiq nazorati</div>
+          <div class="hero-text">Kam qolgan ehtiyot qismlarni kuzating va sotuvlarni nazorat qiling.</div>
+          <button class="btn-light btn-sm" type="button" onclick="navigate('inventory')">Omborga o'tish</button>
+        </div>
+
+        <div class="dashboard-stats">
+          <div class="stat-tile">
+            <div class="stat-tile-label">Qismlar</div>
+            <div class="stat-tile-value" id="stat-total">—</div>
+          </div>
+          <div class="stat-tile stat-tile-danger">
+            <div class="stat-tile-label">Kam qoldiq</div>
+            <div class="stat-tile-value" id="stat-lowstock">—</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-tile-label">Tushum</div>
+            <div class="stat-tile-value" id="stat-revenue">—</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-tile-label">Tranzaksiyalar</div>
+            <div class="stat-tile-value" id="stat-tx">—</div>
+          </div>
+        </div>
+
+        <div class="card card-list">
+          <div class="card-head">
+            <div>
+              <div class="card-head-title">So'nggi tranzaksiyalar</div>
+              <div class="card-head-sub" id="tx-count">—</div>
+            </div>
+            <button class="icon-btn" type="button" title="Barchasini ko'rish" onclick="navigate('sales')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14"/><path d="m13 5 7 7-7 7"/>
+              </svg>
+            </button>
+          </div>
+          <div id="recent-sales-list" class="list-rows">
+            <div class="empty-state">Hali tranzaksiya yo'q</div>
+          </div>
+        </div>
+
+        <div id="alert-box" class="card card-alerts">
+          <div class="card-head">
+            <div>
+              <div class="card-head-title">Kam qoldiq</div>
+              <div class="card-head-sub">Tezkor ogohlantirishlar</div>
+            </div>
+            <span class="pill pill-danger">Diqqat</span>
+          </div>
+          <div id="alert-list" class="list-rows"></div>
+          <div id="alert-empty" class="empty-state">Hozircha kam qoldiq yo'q</div>
+        </div>
+
+      </div>
+    </div>
+ 
+    <!-- INVENTORY PAGE -->
+    <div id="page-inventory" class="hidden page">
+ 
+      <div class="mb-4">
+        <div class="page-title">Ombor</div>
+        <div class="page-sub" id="inv-count-label">—</div>
+      </div>
+ 
+      <!-- Search -->
+      <div class="mb-3 search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4b5563" stroke-width="2" style="top:50%;transform:translateY(-50%);position:absolute;left:12px;z-index:1">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input class="field-input search-input" id="search-input" type="text" placeholder="Ehtiyot qism nomi yoki kodini qidiring…" oninput="renderInventory()" />
+      </div>
+ 
+      <!-- Filter buttons -->
+      <div class="filter-row mb-4" id="filter-row"></div>
+ 
+      <!-- Parts list -->
+      <div id="parts-list"></div>
+      <div id="parts-empty" class="hidden py-12 font-body text-gray-500 text-sm text-center">Qidiruvga mos ehtiyot qism topilmadi</div>
+    </div>
+
+    <!-- MODELS PAGE -->
+    <div id="page-models" class="hidden page">
+
+      <div class="mb-4">
+        <div class="page-title">Modellar</div>
+        <div class="page-sub">Avtomobil modellari: qo'shing, nomini o'zgartiring, boshqaring</div>
+      </div>
+
+      <div class="mb-4 stat-card">
+        <div class="mb-3 font-600 font-display text-gray-500 text-xs uppercase tracking-wider">Yangi model qo'shish</div>
+        <div class="flex gap-2">
+          <input class="field-input field-select" id="model-add-input" list="model-list" placeholder="masalan: Gentra / Tesla Model 3" onkeydown="if(event.key==='Enter'){addModel()}" />
+          <button class="btn-arc" onclick="addModel()" style="min-width:88px">QO'SHISH</button>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center mb-2">
+        <div class="font-600 font-display text-gray-500 text-xs uppercase tracking-wider">Modellar ro'yxati</div>
+        <div class="font-mono text-gray-600 text-xs" id="models-count-label">—</div>
+      </div>
+
+      <div id="models-list"></div>
+      <div id="models-empty" class="hidden py-12 font-body text-gray-500 text-sm text-center">Hali model yo'q</div>
+
+      <div class="mt-4 font-body text-gray-500 text-xs" style="line-height:1.4">
+        Maslahat: ehtiyot qismlar bu modeldan foydalansa, uni o'chira olmaysiz.
+      </div>
+    </div>
+ 
+    <!-- SALES PAGE -->
+    <div id="page-sales" class="hidden page">
+      <div class="mb-5">
+        <div class="page-title">Sotuvlar jurnali</div>
+        <div class="page-sub">Tranzaksiya tarixi</div>
+      </div>
+      <div id="sales-log-full"></div>
+      <div id="sales-empty" class="hidden py-12 font-body text-gray-500 text-sm text-center">Hali sotuvlar qayd etilmagan</div>
+    </div>
+ 
+    <!-- ADD PART PAGE (triggers modal via nav) -->
+    <div id="page-add" class="hidden page"></div>
+ 
+  </div><!-- end main-content -->
+ 
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-page="dashboard" type="button" onclick="navigate('dashboard')">
+      <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+      <span class="nav-label">Panel</span>
+    </button>
+    <button class="nav-btn" data-page="inventory" type="button" onclick="navigate('inventory')">
+      <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+        <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
+      </svg>
+      <span class="nav-label">Ombor</span>
+    </button>
+    <button class="nav-btn" data-page="models" type="button" onclick="navigate('models')">
+      <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M20.59 13.41L11 23H2v-9l9.59-9.59a2 2 0 012.82 0l6.18 6.18a2 2 0 010 2.82z"/>
+        <circle cx="7.5" cy="16.5" r="1.5"/>
+      </svg>
+      <span class="nav-label">Modellar</span>
+    </button>
+    <button class="nav-btn" data-page="sales" type="button" onclick="navigate('sales')">
+      <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+      <span class="nav-label">Sotuvlar</span>
+    </button>
+    <button class="nav-btn" data-page="add" type="button" onclick="openAddModal()">
+      <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+      </svg>
+      <span class="nav-label">Qo'shish</span>
+    </button>
+  </nav>
+ 
+</div><!-- end #app -->
+ 
+<!-- ============ ADD PART MODAL ============ -->
+<div class="modal-backdrop" id="add-modal" onclick="closeModalIf(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="p-5 pb-6">
+      <div class="flex justify-between items-center mb-5">
+        <div>
+          <div class="modal-title">Yangi ehtiyot qism qo'shish</div>
+          <div class="modal-kicker">OMBOR · YANGI YOZUV</div>
+        </div>
+        <button onclick="closeModal('add-modal')" class="icon-btn" type="button" aria-label="Yopish">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="flex flex-col gap-4">
+        <div>
+          <label class="field-label">Ehtiyot qism nomi</label>
+          <input class="field-input" id="add-name" placeholder="masalan: Old fara Matrix LED" />
+        </div>
+        <div class="gap-3 grid grid-cols-2">
+          <div>
+            <label class="field-label">Artikul / Kod</label>
+            <input class="field-input" id="add-code" placeholder="AZ-0001" />
+          </div>
+          <div>
+            <label class="field-label">Avtomobil modeli</label>
+            <input class="field-input field-select" id="add-model" list="model-list" placeholder="masalan: ID.4" />
+          </div>
+        </div>
+        <div class="gap-3 grid grid-cols-2">
+          <div>
+            <label class="field-label">Qoldiq soni</label>
+            <input class="field-input" id="add-stock" type="number" min="0" placeholder="0" />
+          </div>
+          <div>
+            <label class="field-label">Narx (USD)</label>
+            <input class="field-input" id="add-price" type="number" min="0" placeholder="0.00" />
+          </div>
+        </div>
+        <button class="mt-2 btn-primary" onclick="savePart()">SAQLASH</button>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<!-- ============ EDIT MODAL ============ -->
+<div class="modal-backdrop" id="edit-modal" onclick="closeModalIf(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="p-5 pb-6">
+      <div class="flex justify-between items-center mb-5">
+        <div>
+          <div class="modal-title">Ehtiyot qismni tahrirlash</div>
+          <div class="modal-kicker">OMBOR · TAHRIRLASH</div>
+        </div>
+        <button onclick="closeModal('edit-modal')" class="icon-btn" type="button" aria-label="Yopish">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <input type="hidden" id="edit-id" />
+      <div class="flex flex-col gap-4">
+        <div>
+          <label class="field-label">Ehtiyot qism nomi</label>
+          <input class="field-input" id="edit-name" placeholder="Ehtiyot qism nomi" />
+        </div>
+        <div class="gap-3 grid grid-cols-2">
+          <div>
+            <label class="field-label">Artikul / Kod</label>
+            <input class="field-input" id="edit-code" placeholder="AZ-0001" />
+          </div>
+          <div>
+            <label class="field-label">Avtomobil modeli</label>
+            <input class="field-input field-select" id="edit-model" list="model-list" placeholder="masalan: ID.4" />
+          </div>
+        </div>
+        <div class="gap-3 grid grid-cols-2">
+          <div>
+            <label class="field-label">Qoldiq soni</label>
+            <input class="field-input" id="edit-stock" type="number" min="0" />
+          </div>
+          <div>
+            <label class="field-label">Narx (USD)</label>
+            <input class="field-input" id="edit-price" type="number" min="0" />
+          </div>
+        </div>
+        <button class="mt-2 btn-primary" onclick="updatePart()">YANGILASH</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODEL EDIT MODAL ============ -->
+<div class="modal-backdrop" id="model-edit-modal" onclick="closeModalIf(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="p-5 pb-6">
+      <div class="flex justify-between items-center mb-5">
+        <div>
+          <div class="modal-title">Modelni tahrirlash</div>
+          <div class="modal-kicker">MODELLAR · NOMINI TAHRIRLASH</div>
+        </div>
+        <button onclick="closeModal('model-edit-modal')" class="icon-btn" type="button" aria-label="Yopish">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <input type="hidden" id="model-old" />
+      <div class="flex flex-col gap-4">
+        <div>
+          <label class="field-label">Model nomi</label>
+          <input class="field-input field-select" id="model-new" list="model-list" placeholder="masalan: Gentra / Tesla Model 3" />
+        </div>
+        <button class="mt-2 btn-primary" onclick="saveModelEdit()">SAQLASH</button>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Models -->
+<datalist id="model-list"></datalist>
+ 
+<script src="app.js"></script>
+</body>
+</html>
